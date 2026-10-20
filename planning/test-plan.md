@@ -1,8 +1,8 @@
-# MiniTurret 검증 계획
+# PocketCartTurret 검증 계획
 
 ## 자동 검사
 
-`tests/MiniTurret.Checks`에서 권한·장착·전원 조건, 사거리 경계, 최근접 선택, 총구 오프셋/고정 피치의 360도 좌우 회전, 중단 절차와 실제 설치된 게임의 필드/패치/사거리 계약을 검사한다. Debug/Release DLL을 비교해 테스트 스폰 코드가 Release에 없는지도 검사한다.
+`tests/PocketCartTurret.Checks`에서 권한·장착·전원 조건, 사거리 경계, 최근접 선택, 총구 오프셋/고정 피치의 360도 좌우 회전, 중단 절차와 실제 설치된 게임의 필드/패치/사거리 계약을 검사한다. Debug/Release DLL을 비교해 테스트 스폰 코드가 Release에 없는지도 검사한다.
 
 물리 raycast, 실제 리지드바디 운동, 게임 내 이벤트 순서와 네트워크 표현은 다음 수동 플레이로 검증한다.
 

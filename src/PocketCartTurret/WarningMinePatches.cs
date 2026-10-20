@@ -1,6 +1,6 @@
 using HarmonyLib;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // Only warning props carry MineWarningCarrier. Ordinary purchased mines retain
 // all their native behavior. The host never runs warning mine state transitions.

@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../src/MiniTurret/TurretRules.cs" Link="TurretRules.cs" />
-    <Compile Include="../../src/MiniTurret/DetectionWarning.cs" Link="DetectionWarning.cs" />
+    <Compile Include="../../src/PocketCartTurret/TurretRules.cs" Link="TurretRules.cs" />
+    <Compile Include="../../src/PocketCartTurret/DetectionWarning.cs" Link="DetectionWarning.cs" />
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
   </ItemGroup>
 </Project>

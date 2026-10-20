@@ -5,7 +5,7 @@ using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // Excluded from compilation in every non-Debug configuration as well as by #if.
 internal sealed class DebugStageSpawner : MonoBehaviour

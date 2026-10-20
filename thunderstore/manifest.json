@@ -1,8 +1,8 @@
 {
-  "name": "MiniTurret",
+  "name": "PocketCartTurret",
   "version_number": "0.1.0",
-  "website_url": "https://github.com/artrointel/REPOMiniTurret",
-  "description": "Automatic cannon and laser targeting on mini carts. Host only; vanilla clients supported.",
+  "website_url": "https://github.com/artrointel/REPOPocketCartTurret",
+  "description": "Turn your pocket cart into an automatic turret with a mounted cannon or laser. Only the host needs the mod; friends can play completely vanilla.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305"
   ]

@@ -4,7 +4,7 @@ using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // Host-only carrier. Stock peers receive the mine, its Arming state RPC, and destruction.
 internal sealed class MineWarningCarrier : MonoBehaviour

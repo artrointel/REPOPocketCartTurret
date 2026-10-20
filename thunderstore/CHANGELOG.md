@@ -2,6 +2,9 @@
 
 ## 0.1.0
 
+- Introduce PocketCartTurret: turn a pocket cart with a mounted cannon or laser into a mobile automatic turret. Only the host needs the mod; vanilla friends can join.
+- Add the PocketCartTurret artwork and final Thunderstore icon.
+
 - Keep pending warning mines through brief detection loss, defer arming audio until native initialization, and retain warning audio throughout long tracking/alignment waits.
 
 - Add a temporary vanilla Explosive Mine with repeating arming beeps at first detection, a two-second continuous-tracking hold before the first shot, and network cleanup before firing. Stock clients receive the native Arming state RPC. Warning mines cannot arm, trigger, or explode.

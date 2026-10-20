@@ -1,4 +1,4 @@
-# MiniTurret 기능 명세
+# PocketCartTurret 기능 명세
 
 미니카트에 설치된 순정 대포와 레이저를 호스트가 자동 조준·발사한다.
 

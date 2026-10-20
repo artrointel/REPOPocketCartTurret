@@ -1,4 +1,4 @@
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // One warning per continuous encounter; short visibility flicker or switching
 // to a nearer enemy must not create another temporary warning item every frame.

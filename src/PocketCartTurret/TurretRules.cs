@@ -1,8 +1,8 @@
 using System;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
-// Pure rules also exercised by the standalone checks in tests/MiniTurret.Checks.
+// Pure rules also exercised by the standalone checks in tests/PocketCartTurret.Checks.
 internal static class TurretRules
 {
     // These ranges are constants in the vanilla ShootLogic/StateShooting methods.

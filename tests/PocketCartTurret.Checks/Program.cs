@@ -1,5 +1,5 @@
 using System.Numerics;
-using MiniTurret;
+using PocketCartTurret;
 using Mono.Cecil;
 
 int checks = 0;
@@ -100,8 +100,8 @@ Check(!TurretRules.TryAimYaw(0, 1, 2, 0, 0, 1, out _), "Unreachable inner pivot 
 Check(!TurretRules.TryAimYaw(0, 1, 0, 2, 0, 1, out _), "Point behind barrel origin accepted.");
 
 string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../"));
-using AssemblyDefinition debug = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/MiniTurret/bin/Debug/netstandard2.1/MiniTurret.dll"));
-using AssemblyDefinition release = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/MiniTurret/bin/Release/netstandard2.1/MiniTurret.dll"));
+using AssemblyDefinition debug = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Debug/netstandard2.1/PocketCartTurret.dll"));
+using AssemblyDefinition release = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Release/netstandard2.1/PocketCartTurret.dll"));
 Check(debug.MainModule.Types.Any(t => t.Name == "DebugStageSpawner"), "Debug spawn code missing in Debug.");
 Check(debug.MainModule.Types.Any(t => t.Name == "DebugStageStartPatch"), "Debug stage patch missing in Debug.");
 Check(!release.MainModule.Types.Any(t => t.Name.StartsWith("DebugStage")), "Release contains debug spawn code.");

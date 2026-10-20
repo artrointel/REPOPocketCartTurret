@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // Host-local only. The existing weapon RPCs and PhysGrabObject transform sync
 // carry firing, damage, effects and physical rotation to unmodified clients.

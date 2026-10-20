@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 // Access the live game's non-public fields without changing game assemblies.
 internal static class VanillaWeapon

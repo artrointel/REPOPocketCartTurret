@@ -1,7 +1,7 @@
 using System;
 using HarmonyLib;
 
-namespace MiniTurret;
+namespace PocketCartTurret;
 
 [HarmonyPatch(typeof(ItemCartCannonMain), "Start")]
 internal static class WeaponStartPatch

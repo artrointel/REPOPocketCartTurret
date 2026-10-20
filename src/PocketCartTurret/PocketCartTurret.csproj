@@ -4,11 +4,11 @@
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <AssemblyName>MiniTurret</AssemblyName>
-    <RootNamespace>MiniTurret</RootNamespace>
+    <AssemblyName>PocketCartTurret</AssemblyName>
+    <RootNamespace>PocketCartTurret</RootNamespace>
     <Authors>artrointel</Authors>
     <Version>0.1.0</Version>
-    <Description>Host-controlled automatic cannon and laser targeting on mini carts, compatible with vanilla clients.</Description>
+    <Description>Turn pocket carts with mounted cannons or lasers into automatic turrets. Only the host needs the mod; vanilla clients are supported.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

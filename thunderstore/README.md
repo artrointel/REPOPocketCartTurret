@@ -1,20 +1,42 @@
-# MiniTurret
+# PocketCartTurret
 
-Turns vanilla mini-cart cannons and lasers into automatic turrets in R.E.P.O.
+**Turn your pocket cart into an automatic turret. Park it to defend a spot, or take it with you.**
 
-Place a cart cannon or cart laser in a mini cart during a mission. While powered, it tracks the nearest visible enemy using horizontal rotation only, and fires once the actual barrel has a clear shot.
+Drop a **Cart Cannon** or **Cart Laser** into a pocket cart and let it watch your back. Park the cart wherever you need an unattended turret, or pull it along for mobile fire support. PocketCartTurret automatically detects nearby enemies, turns the weapon toward the closest clear target, and opens fire whether the cart is stationary or moving.
 
-- Detection radius: 17.5m for the cannon, 10.5m for the laser (70% of vanilla range).
-- On detection, a temporary vanilla Explosive Mine at the mounted weapon position repeats its arming beeps at the native cadence while tracking begins. The first shot waits for two seconds of continuous tracking and a clear aligned barrel; the mine is removed before firing.
-- Vanilla battery costs, damage, and firing effects.
-- Keep pulling the cart normally. Grabbing the weapon itself pauses automation for manual control.
-- Install on the host. Other players can use unmodified clients.
-- Release packages contain no development item-spawning code.
+**Only the host needs the mod. Your friends can play completely vanilla.**
 
-Requires BepInExPack. Successful plugin initialization writes `MiniTurret v0.1.0 loaded.` to the BepInEx log.
+## Host-only installation, shared firepower
 
-The included icon is a development placeholder.
+Install PocketCartTurret on the host and everyone in the lobby can enjoy the automatic turret, including players without this mod or BepInEx. Weapon rotation, warning beeps, firing effects, and damage use the game's existing multiplayer synchronization.
 
-Warning mines cannot trigger or explode. Ordinary purchased mines retain their behavior.
+No extra setup or downloads are required for your friends. Installing the mod only on a client does not enable automatic turrets; it must be installed on the host.
 
-Even brief tracking loss restarts the two-second hold on reacquisition. A pending warning mine is reused through losses shorter than 0.5 seconds. Continuous follow-up fire retains vanilla preparation times.
+## How to use
+
+1. Install PocketCartTurret and its BepInExPack dependency on the host.
+2. Bring a pocket cart and a Cart Cannon or Cart Laser into a mission.
+3. Place the weapon in the pocket cart and keep its battery charged.
+4. Park the cart at a position you want to defend and let it track and fire on its own. You can also pull it along while it operates.
+
+Grab the weapon itself whenever you want manual control. Release it in the pocket cart to resume automation.
+
+## Features
+
+- **Cannon and laser support:** turn the weapons you already own into automatic turrets.
+- **Automatic targeting:** tracks the nearest enemy with a clear firing path within 70% of the weapon's normal range—17.5 m for cannons and 10.5 m for lasers.
+- **Warning before firing:** arming beeps play while the turret tracks. The first shot requires two seconds of continuous tracking and an aligned, unobstructed barrel.
+- **Stationary or mobile defense:** leave the cart in place as an unattended turret, or pull it along while it tracks and fires. No player needs to hold or push the cart for automation to work.
+- **Vanilla weapon behavior:** keeps normal battery consumption, damage, and firing effects. Automation pauses when the weapon is grabbed, removed from the pocket cart, or out of power.
+
+Brief loss of detection restarts the two-second tracking hold. Uninterrupted follow-up shots use the weapon's normal preparation time. Weapons on the floor or in a large cart do not become automatic turrets.
+
+## Installation
+
+Use a Thunderstore-compatible mod manager and install this package on the **host**. Its BepInExPack dependency will be installed automatically.
+
+For manual installation, install BepInExPack first, then extract this ZIP's `BepInEx` folder into your R.E.P.O. game directory. The plugin is `BepInEx/plugins/PocketCartTurret/PocketCartTurret.dll`.
+
+## Links
+
+[Source code and issues](https://github.com/artrointel/REPOPocketCartTurret)
