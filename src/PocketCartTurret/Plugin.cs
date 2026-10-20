@@ -9,7 +9,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string PluginGuid = "artrointel.PocketCartTurret";
     public const string PluginName = "PocketCartTurret";
-    public const string PluginVersion = "0.1.0";
+    public const string PluginVersion = "0.1.1";
 
     internal static ManualLogSource ModLogger { get; private set; } = null!;
 

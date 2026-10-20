@@ -63,7 +63,7 @@ $env:NUGET_PACKAGES = "$PWD\.nuget\packages"
 - `F5` → `PocketCartTurret: Launch and attach`: Mono 디버거로 실행 및 연결 (`127.0.0.1:10000`)
 - `PocketCartTurret: Watch BepInEx log`: 개발 프로필 로그 확인
 
-F5에는 VS Code의 C# Dev Kit과 Unity 확장이 필요합니다. 게임을 종료한 뒤 코드를 다시 빌드하고 실행하세요. 로딩 성공 시 `PocketCartTurret v0.1.0 loaded.`가 기록됩니다.
+F5에는 VS Code의 C# Dev Kit과 Unity 확장이 필요합니다. 게임을 종료한 뒤 코드를 다시 빌드하고 실행하세요. 로딩 성공 시 `PocketCartTurret v0.1.1 loaded.`가 기록됩니다.
 
 다른 프로필은 `Directory.Repo.props.example` 또는 `Directory.Repo.Gale.props.example`을 `Directory.Repo.props`로 복사해 지정할 수 있습니다. 실행 스크립트와 로그 작업의 경로도 함께 변경하세요. `Directory.Repo.props`는 개인 경로를 포함하므로 Git에서 제외됩니다.
 
@@ -73,7 +73,7 @@ F5에는 VS Code의 C# Dev Kit과 Unity 확장이 필요합니다. 게임을 종
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Pack-Thunderstore.ps1
 ```
 
-결과는 `artifacts/PocketCartTurret-0.1.0.zip`에 생성됩니다. 패키징 빌드는 게임 프로필에 배포하지 않습니다. 아이콘 원본은 `assets/PocketCartTurret.png`, 제출용 256×256 PNG는 `thunderstore/icon.png`입니다. 버전은 csproj, `Plugin.cs`, `thunderstore/manifest.json` 세 곳에서 일치해야 합니다.
+결과는 `artifacts/PocketCartTurret-0.1.1.zip`에 생성됩니다. 패키징 빌드는 게임 프로필에 배포하지 않습니다. 아이콘 원본은 `assets/PocketCartTurret.png`, 제출용 256×256 PNG는 `thunderstore/icon.png`입니다. 버전은 csproj, `Plugin.cs`, `thunderstore/manifest.json` 세 곳에서 일치해야 합니다.
 
 복원 완료 후 네트워크 없이 패키징하려면 `-NoRestore`를 추가합니다.
 

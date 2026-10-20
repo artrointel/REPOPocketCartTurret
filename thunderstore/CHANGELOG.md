@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Clarify that the cart works as an unattended stationary turret as well as mobile fire support. No player needs to hold or push it.
+- Documentation update; gameplay is unchanged.
+
 ## 0.1.0
 
 - Introduce PocketCartTurret: turn a pocket cart with a mounted cannon or laser into a mobile automatic turret. Only the host needs the mod; vanilla friends can join.

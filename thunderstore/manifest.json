@@ -1,6 +1,6 @@
 {
   "name": "PocketCartTurret",
-  "version_number": "0.1.0",
+  "version_number": "0.1.1",
   "website_url": "https://github.com/artrointel/REPOPocketCartTurret",
   "description": "Turn your pocket cart into an automatic turret with a mounted cannon or laser. Only the host needs the mod; friends can play completely vanilla.",
   "dependencies": [

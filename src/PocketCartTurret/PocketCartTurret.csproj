@@ -7,7 +7,7 @@
     <AssemblyName>PocketCartTurret</AssemblyName>
     <RootNamespace>PocketCartTurret</RootNamespace>
     <Authors>artrointel</Authors>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Description>Turn pocket carts with mounted cannons or lasers into automatic turrets. Only the host needs the mod; vanilla clients are supported.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
