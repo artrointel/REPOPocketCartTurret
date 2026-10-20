@@ -8,9 +8,13 @@
     <RootNamespace>MiniTurret</RootNamespace>
     <Authors>artrointel</Authors>
     <Version>0.1.0</Version>
-    <Description>MiniTurret mod development scaffold for R.E.P.O.</Description>
+    <Description>Host-controlled automatic cannon and laser targeting on mini carts, compatible with vanilla clients.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+    <Compile Remove="Debug/**/*.cs" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DebugType>portable</DebugType>

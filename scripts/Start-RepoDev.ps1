@@ -36,7 +36,7 @@ if ($EnableDebugger) {
 
 Start-Process `
     -FilePath $gameExecutable `
-    -WindowStyle Hidden `
+    -WindowStyle Normal `
     -WorkingDirectory $gameDirectory `
     -ArgumentList $launchArguments
 

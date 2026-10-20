@@ -2,7 +2,7 @@
   "name": "MiniTurret",
   "version_number": "0.1.0",
   "website_url": "https://github.com/artrointel/REPOMiniTurret",
-  "description": "MiniTurret mod development scaffold for R.E.P.O.",
+  "description": "Automatic cannon and laser targeting on mini carts. Host only; vanilla clients supported.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305"
   ]

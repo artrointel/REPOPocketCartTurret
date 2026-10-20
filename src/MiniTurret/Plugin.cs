@@ -22,6 +22,9 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         ModLogger.LogInfo($"{PluginName} v{PluginVersion} loaded.");
+#if DEBUG
+        ModLogger.LogWarning("Debug build: one mini cart, cannon, and laser will spawn at each mission start.");
+#endif
     }
 
     private void OnDestroy()
