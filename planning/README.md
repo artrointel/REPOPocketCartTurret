@@ -1,58 +1,55 @@
-# PocketCartTurret 기능 명세
+# PocketCartTurret feature specification
 
-미니카트에 설치된 순정 대포와 레이저를 호스트가 자동 조준·발사한다.
+The host automatically aims and fires stock cannons and lasers mounted in pocket carts. A cart can defend a position unattended or provide fire support while being pulled.
 
-## 활성 조건
+## Activation requirements
 
-1. 일반 미션 스테이지 생성이 완료되어야 한다.
-2. 호스트 또는 싱글플레이에서만 판정한다.
-3. 순정 `PhysGrabObjectImpactDetector.inCart/currentCart`가 미니카트를 가리켜야 한다.
-4. 배터리의 잔량과 사용 가능한 바 수가 모두 양수여야 한다.
-5. 플레이어가 무기 자체를 잡은 동안에는 순정 수동 조작을 우선한다. 카트를 끄는 것은 허용한다.
+1. A normal mission must have finished generating.
+2. Decisions run only on the host or in singleplayer. The game uses a fixed host.
+3. Native `PhysGrabObjectImpactDetector.inCart/currentCart` must identify a pocket cart.
+4. Both remaining battery charge and available battery bars must be positive.
+5. Directly grabbing the weapon gives native manual control priority. Pulling the cart is allowed.
 
-## 탐지·추적·발사
+## Detection, tracking, and firing
 
-- 대포 최대 사거리 25m → 탐지 반경 17.5m.
-- 레이저 최대 사거리 15m → 탐지 반경 10.5m.
-- 스폰되어 활성 상태이고 사망하지 않은 적만 탐지한다.
-- 탐지 거리는 총구에서 적 중심까지의 3차원 거리로 판정한다.
-- 카트에서는 모든 경로에서 순정 기립 자세 유지 동작을 보존한다. 누운 자세를 허용하거나 누운 무기의 총구를 가상 기립 자세로 보정하는 경로를 두지 않는다.
-- 실제 총구 위치·방향과 오프셋으로 좌우 360도 회전 시의 발사 ray를 계산한다. 피치·롤·높이를 보정하지 않는다. 해당 ray가 적의 콜라이더에 닿지 않으면 탐지 대상으로 삼지 않는다.
-- 벽, 다른 물체, 카트, 플레이어가 ray의 앞을 막으면 대상에서 제외한다. 총구 자체의 하우징만 제외한다.
-- 조건을 만족하는 가장 가까운 적 한 마리를 매 프레임 다시 선택한다. 거리가 같으면 고정된 인스턴스 순서로 선택한다.
-- 순정 `GrabLogic`을 항상 실행해 기립 자세 보정·각 감쇠·수동 조작을 유지한다. 별도의 물리 토크를 가하지 않고 `currentCorrector`의 좌우 방향만 초당 최대 180도씩 갱신한다. 적을 향한 피치·롤 조준이나 카트의 위치·회전·손잡이·질량 변경은 하지 않는다.
-- 조준 회전이 끝나 실제 총구 ray가 대상에 닿는 동안 순정 `buildup → shooting → goingBack → active` 절차를 실행한다.
-- 준비 중 대상·사선·전원·장착 조건을 잃으면 준비를 취소한다. 발사 중에는 순정 복귀 절차를 거쳐 멈춘다. 레이저의 배터리 소모가 중복 실행되지 않도록 복귀 상태를 재시작하지 않는다.
+- Cannon maximum range: 25 m; detection radius: 17.5 m.
+- Laser maximum range: 15 m; detection radius: 10.5 m.
+- Only spawned, active, living enemies are eligible.
+- Range is the three-dimensional distance from the muzzle to the enemy center.
+- Preserve native upright stabilization in every cart interaction path. Do not allow a prone pose as part of automation or substitute a virtual upright muzzle for a fallen weapon.
+- Calculate the firing ray across 360 degrees of yaw using the actual muzzle position, direction, and offset. Do not correct pitch, roll, or height. The ray must reach the enemy collider for detection.
+- Walls, objects, carts, and players block targeting. Exclude only the firing weapon's own housing.
+- Select the nearest eligible enemy every frame. Resolve equal distances by stable instance order.
+- Always execute native `GrabLogic` to preserve stabilization, angular damping, and manual control. Update only the yaw of `currentCorrector`, at up to 180 degrees per second, without adding physics torque. Do not change cart position, rotation, handles, or mass, or aim pitch/roll toward enemies.
+- Once the actual muzzle ray reaches the target, use native `buildup → shooting → goingBack → active` states, subject to the warning timer below.
+- Cancel preparation if target, visibility, power, or mounting requirements fail. Stop active firing through native recovery. Do not restart recovery and double-charge laser battery usage.
 
-## 순정 참가자 호환
+## Vanilla-client compatibility
 
-커스텀 네트워크 프리팹이나 RPC를 추가하지 않는다. 기존 `ItemCartCannonMain.StateSet`이 순정 `StateSetRPC`를 전송하고, 순정 무기가 발사 효과·피해·배터리를 처리한다. 물리 회전도 기존 `PhysGrabObject`/Photon 동기화를 사용한다.
+Add no custom network prefabs or RPCs. Existing `ItemCartCannonMain.StateSet` sends native `StateSetRPC`; stock weapons handle effects, damage, and batteries. Rotation uses existing `PhysGrabObject`/Photon synchronization.
 
-참가자에 모드가 설치되어 있어도 호스트가 아닌 동안에는 판정과 조작을 하지 않는다. 호스트가 모드를 사용하면 참가자의 별도 설치는 필요하지 않다. 실제 순정 참가자와의 동작 확인은 [test-plan.md](test-plan.md)의 멀티플레이 항목으로 검증한다.
+Clients perform no authority decisions even if they have the mod installed. Only the host needs the mod. Validate actual vanilla-client behavior with the multiplayer cases in [the test plan](test-plan.md).
 
-## 개발용 스폰과 배포
+## Development spawning and distribution
 
-- Debug에서만 일반 미션 생성 완료 후 트럭 근처에 미니카트·대포·레이저를 각각 하나씩 생성한다.
-- 동일한 `LevelGenerator`에서 완료 이벤트가 반복되어도 추가 생성하지 않는다.
-- 네트워크 플레이에서는 호스트가 순정 방 소유 아이템을 생성하므로 순정 참가자도 볼 수 있다.
-- 상점·로비·참가자에서는 테스트 장비를 추가 생성하지 않는다.
-- `Debug/` 소스는 비 Debug 구성에서 컴파일 제외하며 `#if DEBUG`로도 감싼다.
-- Thunderstore 패키징은 Release 구성만 허용한다.
+- Debug builds spawn one pocket cart, cannon, and laser near the truck after normal mission generation.
+- Repeated completion events for the same `LevelGenerator` must not duplicate the equipment.
+- In multiplayer the host spawns native room-owned items visible to vanilla clients.
+- Do not spawn test equipment in shops, lobbies, or on clients.
+- Exclude `Debug/` sources from non-Debug compilation and also guard them with `#if DEBUG`.
+- Thunderstore packaging accepts only Release builds.
 
-## Explosive Mine 탐지 경고 구현
+## Explosive Mine detection warning
 
-- 장착 무기 위치에 순정 Explosive Mine 프리팹을 방 소유 네트워크 객체로 생성하고, 순정 StateSetRPC(Arming)를 한 번 전달한다. 순정 참가자는 StateArming의 soundArmingBeep를 지뢰 위치에서 순정 간격으로 반복한다. 호스트는 StateArming 역패치로 같은 반복 로직을 실행하되 실제 무장/폭발 상태 전환을 차단한다. 커스텀 RPC/프리팹은 추가하지 않는다.
-- 생성 시 즉시 추적 및 순정 준비 단계를 시작한다. 첫 발은 탐지 후 2초 및 실제 총구 정렬·사선 조건이 모두 충족될 때만 허용한다. 순정 준비 시간이 2초와 달라도 첫 발의 시점은 이 경고 타이머를 기준으로 한다.
-- StateSet의 shooting 진입도 별도로 차단해 순정 FixedUpdate 경로가 2초 전에 발사하지 못하도록 한다. 기립 보정과 추적은 준비 대기 중에도 계속 실행한다.
-- 발사 직전에 PhotonNetwork.Destroy를 먼저 전송하고 순정 발사 상태 RPC를 전송한다.
-- 같은 교전의 타깃 전환은 재경고하지 않는다. 0.5초 미만 가림에는 대기 지뢰를 재사용하지만 추적 시간은 재탐지부터 다시 2초를 측정한다. 후속 발사는 원래 무기의 준비 시간을 사용한다.
-- 지뢰는 무기의 현재 위치·회전을 따라가며 호스트 충돌을 비활성화한다. 잡기 요청과 토글을 막고 ItemFetchName/AddSpawnedItem의 호스트 등록에서 제외해 저장 상태와 구매 개수를 변경하지 않는다.
-- 적 상실·장착/전원 상실·수동 무기 잡기·비활성화 시 정리한다. 정상 추적 대기에는 지뢰 수명을 갱신하며, 제어 코드가 관리하지 않는 지뢰만 5초 뒤 정리한다.
-- 순정 참가자의 실제 청음·위치 동기화·제거 순서는 플레이로 별도 검증해야 한다.
-
-- 경고용 지뢰만 native ItemMine.Update를 중단하고, 감지 플래그와 트리거를 비활성화한다. StateSet·TriggeredRPC·OnTriggered·DestroyMine 진입을 차단하고 충격 파괴도 막는다. 일반 구매 지뢰는 이 패치의 대상이 아니다.
-
-- 추가 확인: 무기가 이동·회전할 때 경고 지뢰 위치가 무기의 transform.position과 일치해야 한다. 1.9초 추적 후 잠깐 가렸다가 재탐지하면 즉시 발사하지 않고 다시 연속 2초를 기다려야 한다.
-
-- 설치 진행 상태와 토글 금지는 버퍼에 보관해 늦게 접속한 참가자에게 전달한다. 지뢰 제거 시 Photon의 생성·RPC 캐시도 정리된다.
-- 잡기와 별개인 장착 요청(RPC_RequestEquip)도 차단한다. 진단 전역 Sound.Play 패치, 상태 로그, 프리팹 프로브, F8 검사는 제거했다.
+- Spawn a native Explosive Mine prefab as a room-owned network object at the mounted weapon. Send native `StateSetRPC(Arming)` once. Vanilla clients repeat `StateArming.soundArmingBeep` at the mine position at native intervals. The host invokes the same logic through a `StateArming` reverse patch while blocking actual arming/explosion transitions. Add no custom RPCs or prefabs.
+- Start tracking and native preparation immediately. Allow the first shot only after two continuous seconds of detection, actual muzzle alignment, and a clear firing path. The warning timer gates the first shot even when native preparation takes a different duration.
+- Separately gate `StateSet` entry into `shooting` so native `FixedUpdate` cannot fire early. Continue stabilization and tracking while waiting.
+- Send `PhotonNetwork.Destroy` immediately before the native firing-state RPC.
+- Target switches during continuous tracking do not restart the warning. Occlusion shorter than 0.5 seconds reuses the pending mine, but reacquisition always restarts the two-second tracking timer. Follow-up shots use native preparation times.
+- Follow the weapon's current position and rotation. Disable host collision, grabbing, and toggling. Exclude the warning item from host `ItemFetchName`/`AddSpawnedItem` registration to preserve saved state and purchase counts.
+- Clean up after target loss, unmounting, power loss, manual grabbing, or disabling. Renew the lifetime during pending tracking; only unmanaged mines expire after five seconds.
+- Verify vanilla-client audio, position synchronization, and removal order through actual gameplay.
+- Stop native `ItemMine.Update` only for warning mines and disable detection flags and triggers. Block `StateSet`, `TriggeredRPC`, `OnTriggered`, `DestroyMine`, and impact destruction. Normal purchased mines are unaffected.
+- During weapon movement and rotation, the mine must match the weapon's `transform.position`. After 1.9 seconds of tracking followed by a brief interruption, reacquisition must require another full two seconds.
+- Buffer the initial arming and toggle-disable RPCs for late joiners. Destroying the mine clears Photon instantiation and RPC caches.
+- Block `RPC_RequestEquip` independently of grabbing. The global `Sound.Play` diagnostics, state logs, prefab probes, and F8 test have been removed.

@@ -1,67 +1,67 @@
-# PocketCartTurret 검증 계획
+# PocketCartTurret test plan
 
-## 자동 검사
+## Automated checks
 
-`tests/PocketCartTurret.Checks`에서 권한·장착·전원 조건, 사거리 경계, 최근접 선택, 총구 오프셋/고정 피치의 360도 좌우 회전, 중단 절차와 실제 설치된 게임의 필드/패치/사거리 계약을 검사한다. Debug/Release DLL을 비교해 테스트 스폰 코드가 Release에 없는지도 검사한다.
+`tests/PocketCartTurret.Checks` checks authority, mounting, power, range boundaries, nearest-target selection, 360-degree yaw with muzzle offsets and fixed pitch, interruption handling, and installed-game field/patch/range contracts. It compares Debug and Release DLLs to verify test spawning is absent from Release.
 
-물리 raycast, 실제 리지드바디 운동, 게임 내 이벤트 순서와 네트워크 표현은 다음 수동 플레이로 검증한다.
+Physics raycasts, rigidbody motion, in-game event ordering, and network presentation require the manual gameplay checks below.
 
-## Debug 스폰
+## Debug spawning
 
-1. Debug로 빌드·배포하고 새 일반 미션을 시작한다. 트럭 근처에 미니카트·대포·레이저가 각각 하나씩 추가되어야 한다.
-2. 다음 미션에도 각 하나씩 생성되는지 확인한다. 상점·로비에는 추가 생성되면 안 된다.
-3. 참가자 접속이나 같은 생성 완료 이벤트로 같은 스테이지에 두 번째 세트가 생기면 안 된다.
-4. 스폰된 무기를 카트에 직접 넣어 나머지 항목을 검사한다.
+1. Build and deploy Debug, then start a normal mission. One additional pocket cart, cannon, and laser must appear near the truck.
+2. Confirm one of each appears in the next mission, but none in shops or lobbies.
+3. Client connections and repeated generation-complete events must not create a second set in the same stage.
+4. Place the spawned weapons in the cart manually for the remaining checks.
 
-## 활성·전원·이동
+## Activation, power, and movement
 
-0. 대포와 레이저는 카트 안에서 순정과 동일하게 항상 기립 자세를 유지해야 한다. 무적 상태·탐지 대상 없음·조준·준비·발사·복귀·배터리 소진·수동 조작·자동화 오류를 포함한 모든 경로에서 모드가 순정 기립 동작을 방해하면 안 된다. 누운 자세를 전제로 한 탐지나 가상 총구 보정 경로가 없어야 한다.
-1. 미니카트만 있거나 무기가 바닥/대형 카트에 있으면 자동 발사하지 않아야 한다.
-2. 무기를 미니카트에 넣으면 가까운 적을 자동 조준해야 한다. 밖으로 꺼내면 자동 준비·발사를 멈춰야 한다.
-3. 잔량이 있는 동안에만 작동하고 마지막 배터리를 소모하면 멈춰야 한다. 충전 후 다시 작동해야 한다.
-4. 대포는 순정 발사당 한 바, 레이저는 순정 복귀 때 한 바만 소모해야 한다. 사선 상실로 복귀해도 중복 소모가 없어야 한다.
-5. 자동 조준 중 호스트와 참가자가 카트를 끌고 이동할 수 있어야 한다. 무기만 좌우로 추적하고 카트가 강제로 고정되거나 회전하면 안 된다.
-6. 무기 자체를 잡으면 자동 동작이 멈추고 수동 조작할 수 있어야 한다. 놓은 뒤 카트 안에 남아 있으면 자동 동작이 재개되어야 한다.
+1. Cannons and lasers must always preserve native upright stabilization inside carts, including invulnerability, no target, aiming, preparation, firing, recovery, battery depletion, manual control, and automation errors. Do not use prone-pose detection or virtual muzzle correction.
+2. A cart without a weapon, or a weapon on the floor or in a large cart, must not fire automatically.
+3. A weapon placed in a pocket cart must aim at nearby eligible enemies. Removing it must stop automatic preparation and firing.
+4. Operate only with remaining power. Stop after the last battery charge and resume after charging.
+5. Cannons consume one native battery bar per shot; lasers consume one during native recovery. Visibility loss must not cause duplicate consumption.
+6. The host and clients must be able to pull the cart during automation. Only weapon yaw tracks targets; the cart must not be forcibly locked or rotated.
+7. Park the cart and release all handles. It must continue detecting, tracking, and firing as an unattended turret.
+8. Directly grabbing the weapon pauses automation and permits manual control. Releasing it inside the cart resumes automation.
 
-## 탐지·조준·장애물
+## Detection, aiming, and obstacles
 
-1. 대포 17.5m/레이저 10.5m 바로 안과 밖에 적을 두고 경계를 확인한다.
-2. 앞·뒤·좌·우와 그 사이 방향의 적을 모두 좌우로 조준할 수 있어야 한다.
-3. 위층·아래층 또는 수평 발사선이 적 몸체와 겹치지 않는 상황에서는 상하를 향해 조준하거나 잘못 발사하지 않아야 한다.
-4. 같은 높이의 살아 있는 적 둘을 두고 더 가까운 적 하나만 선택하는지 확인한다. 거리가 역전되면 가까워진 적으로 전환해야 한다.
-5. 사망·디스폰된 적을 조준하지 않아야 한다.
-6. 벽/문/물체/플레이어를 총구와 적 사이에 놓으면 자동 발사하지 않아야 한다. 다른 무기나 카트도 사선을 막아야 한다.
-7. 회전 도중 대상이 정면에 오기 전에는 발사하면 안 된다. 총구 자신의 하우징에 탐지가 막히지는 않아야 한다.
-8. 준비·발사 중 벽 뒤로 숨거나 사거리 밖으로 이동하면 준비/발사가 중단되어야 한다. 조건 회복 후 다시 조준·발사해야 한다.
+1. Check enemies just inside and outside the cannon's 17.5 m and laser's 10.5 m ranges.
+2. Verify yaw tracking in front, behind, left, right, and intermediate directions.
+3. Enemies above or below, or outside the horizontal firing ray, must not cause vertical aiming or invalid firing.
+4. With two living enemies at the same height, select only the nearer eligible enemy. Switch when their distance order reverses.
+5. Do not aim at dead or despawned enemies.
+6. Walls, doors, objects, players, other weapons, and carts between the muzzle and target must block automatic firing.
+7. Do not fire before rotation aligns the actual muzzle. The weapon's own housing must not block detection.
+8. Moving behind cover or out of range during preparation/firing must interrupt it. Aim and fire again after requirements recover.
 
-## 멀티플레이
+## Multiplayer
 
-1. 호스트에게만 모드를 설치하고 순정 참가자를 연결한다. Debug 생성 장비가 모두에게 같은 위치에 보여야 한다.
-2. 대포·레이저 각각의 물리 조준 방향, 준비·발사·복귀 효과, 소리, 배터리와 적 피해를 호스트/참가자 화면에서 비교한다.
-3. 순정 참가자가 카트를 끌거나 무기를 잡고 빼도 양쪽에서 동일하게 동작해야 한다.
-4. 순정 호스트에 모드를 설치한 참가자만 접속하면 자동 조준과 테스트 스폰이 실행되면 안 된다.
-5. 모드를 설치한 다른 플레이어로 호스트가 바뀌면 판정이 한 호스트에서만 수행되어야 한다. 순정 호스트로 바뀌면 자동 동작을 계속 강제하지 않아야 한다.
+1. Install the mod only on the host and connect a vanilla client. Debug equipment must appear at matching locations for everyone.
+2. Compare cannon and laser aiming, preparation, firing, recovery, audio, batteries, and enemy damage on host and client screens.
+3. A vanilla client must be able to pull the cart, grab the weapon, and remove it with consistent results on both sides.
+4. A modded client joining a vanilla host must not enable automation or test spawning.
+5. The host remains fixed throughout the session; host migration is outside the game's behavior and is not a test requirement.
 
 ## Release
 
-1. Release 빌드 및 자동 검사를 통과시킨다. `DebugStageSpawner`와 `DebugStageStartPatch`가 Release DLL에 없어야 한다.
-2. Release DLL을 개발 프로필의 Debug DLL 대신 설치하고 새 일반 미션을 시작한다. 테스트 장비가 추가되면 안 된다.
-3. Release에서 정상 구매한 미니카트·대포·레이저의 터렛 기능은 유지되어야 한다.
-4. 패키징에 `-Configuration Debug`를 지정하면 거부되어야 한다. Release ZIP에는 순정 게임 DLL이나 테스트 도구가 들어가면 안 된다.
+1. Pass the Release build and automated checks. `DebugStageSpawner` and `DebugStageStartPatch` must be absent from the Release DLL.
+2. Replace the development profile's Debug DLL with Release and start a normal mission. No test equipment may spawn.
+3. Normally purchased pocket carts, cannons, and lasers must retain turret functionality in Release.
+4. Packaging with `-Configuration Debug` must be rejected. The Release ZIP must not contain stock game DLLs or test tools.
 
-## Explosive Mine 경고음과 첫 발 지연
+## Explosive Mine warning and first-shot delay
 
-1. 싱글 및 호스트만 모드를 설치한 멀티플레이에서 처음 적을 탐지하면 장착 무기 위치에 Explosive Mine 하나가 나타나 설치 과정음을 반복 재생하는지 확인한다. 무기가 적을 등지고 있어도 추적은 즉시 시작해야 한다.
-2. 대포·레이저 모두 탐지 후 2초 이전에는 실제 발사하지 않아야 한다. 정렬·사선이 확보되면 2초 이후 첫 발이 나가고 Explosive Mine이 모든 클라이언트에서 제거되어야 한다.
-3. 2초가 지나도 정렬이 끝나지 않았다면 계속 추적하며 발사는 기다려야 한다. 순정 기립 보정이 계속 유지되어야 한다. 조준 대기가 5초를 넘어도 경고음은 유지되어야 한다. 제어 코드에서 관리가 끊긴 지뢰만 5초 뒤 제거되어야 한다.
-4. 같은 적의 연속 사격과 최근접 대상 전환은 경고를 재시작하지 않아야 한다. 후속 발사 준비·배터리 소모는 정상이어야 한다.
-5. 잠깐 가렸다가 나타난 적은 경고 시작이 중복되지 않아야 한다. 0.5초 이상 놓친 뒤 재탐지하면 새 Explosive Mine/설치 과정음/2초 대기가 시작되어야 한다.
-6. 타깃 상실·무기 카트 이탈·배터리 소진·무기 직접 잡기·씬 전환으로 임시 Explosive Mine이 남지 않아야 한다. 정상 보유 Explosive Mine와 구매·배터리 저장 상태는 영향을 받지 않아야 한다.
-7. 카트를 끌고 이동하면서 임시 Explosive Mine이 따라오는지, 카트/무기의 기립·이동·조준과 충돌하지 않는지 확인한다. 순정 참가자의 잡기/사용 시도로 Explosive Mine을 획득하거나 폭발하거나 피해를 주면 안 된다.
-8. Release에서 경고용 Explosive Mine은 생성되지만 Debug 전용 미니카트·대포·레이저 세트는 추가 생성되지 않아야 한다.
-
-9. 녹화나 실제 플레이로 첫 발 전 연속 추적 2초를 확인한다. 1.9초 추적 후 잠깐 가렸다가 재탐지하면 다시 2초를 기다려야 한다. 지뢰 위치는 이동·회전 중인 무기의 transform.position과 일치해야 한다.
-10. 경고 지뢰에 플레이어·몬스터·물체가 접근하거나 카트를 빠르게 이동해도 폭발·피해·설치/해제 전환이 없어야 한다. 경고 지뢰를 인벤토리에 넣으려는 시도도 실패해야 한다. 일반 구매 지뢰는 정상 동작해야 한다.
-11. 경고 중 참가자를 새로 접속시켜 설치 과정음과 사용 금지가 복원되는지 확인한다. 지뢰가 이미 제거된 뒤 접속하면 이전 경고가 재생되거나 지뢰가 되살아나면 안 된다.
-12. 순정 참가자가 경고 중 무기와 카트를 잡을 때 지뢰의 로컬 콜라이더 때문에 상호작용이 가려지는지 확인한다.
-13. 여러 카트와 다수의 적을 동시에 배치해 프레임 지연·GC를 측정한다. 총구가 벽 내부에 겹친 특수 자세에서도 오발이 없는지 확인한다.
+1. In singleplayer and host-only multiplayer, first detection must spawn one Explosive Mine at the mounted weapon and repeat installation-process beeps. Tracking must start immediately even when the weapon faces away.
+2. Neither cannon nor laser may fire before two seconds. Once aligned and unobstructed, the first shot must occur after the hold and the mine must disappear on all clients.
+3. If alignment is incomplete after two seconds, continue tracking and waiting while preserving native stabilization. Keep the warning audible even beyond five seconds. Only unmanaged mines expire after five seconds.
+4. Continuous shots and nearest-target switches must not restart the warning. Follow-up preparation and battery use must remain native.
+5. Brief occlusion must not duplicate the pending warning mine. Any tracking loss resets the two-second hold; loss of at least 0.5 seconds must also remove the mine and start a new mine/warning on reacquisition.
+6. Target loss, unmounting, battery depletion, directly grabbing the weapon, and scene changes must not leave temporary mines behind. Normal owned mines and purchase/battery saved state must be unaffected.
+7. Pull the cart and verify the mine follows without interfering with cart/weapon stabilization, movement, or aiming. Vanilla-client grab/use attempts must not acquire the mine or cause explosions or damage.
+8. Release must spawn warning mines while excluding the Debug-only cart/cannon/laser equipment set.
+9. Use gameplay or a recording to verify two seconds of continuous tracking before the first shot. Track for 1.9 seconds, briefly occlude the enemy, and reacquire: another full two seconds must pass. The mine must match the moving/rotating weapon's `transform.position`.
+10. Players, enemies, objects, and fast cart movement must not trigger explosions, damage, or arm/disarm transitions. Inventory equip attempts must fail. Normal purchased mines must still work.
+11. Join during a warning and verify the arming audio and interaction restrictions are restored. Joining after removal must not replay the warning or resurrect the mine.
+12. Check whether a warning mine's local colliders obstruct a vanilla client's interactions with the weapon or cart.
+13. Profile frame delays and garbage collection with multiple carts and many enemies. Check unusual muzzle positions inside walls for unintended firing.
