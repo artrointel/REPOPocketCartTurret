@@ -40,3 +40,7 @@ For manual installation, install BepInExPack first, then extract this ZIP's `Bep
 ## Links
 
 [Source code and issues](https://github.com/artrointel/REPOPocketCartTurret)
+
+## R.E.P.O. 0.5.0
+
+Version 0.1.2 updates the build for The Sunstone Update and adds immediate automation cleanup for destroyed or disabled equipment. The host-only installation requirement and existing turret behavior remain unchanged.

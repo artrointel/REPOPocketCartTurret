@@ -65,3 +65,12 @@ Physics raycasts, rigidbody motion, in-game event ordering, and network presenta
 11. Join during a warning and verify the arming audio and interaction restrictions are restored. Joining after removal must not replay the warning or resurrect the mine.
 12. Check whether a warning mine's local colliders obstruct a vanilla client's interactions with the weapon or cart.
 13. Profile frame delays and garbage collection with multiple carts and many enemies. Check unusual muzzle positions inside walls for unintended firing.
+
+## R.E.P.O. 0.5.0 regressions
+
+- Destroy the pocket cart in a pit while tracking or firing. Automation must stop and remove the warning mine; do not keep firing from a detached weapon. Repeat with weapon destruction and object disable/pocketing.
+- Start several Debug missions, including a run whose local setup completes after GenerateDone arrives. Exactly one cart/cannon/laser set must spawn after actual generation completion. Release must never spawn test equipment.
+- Test cannon and laser aiming, native upright stabilization, stationary defense, cart pulling, direct manual grabbing, and the two-second first shot.
+- Exhaust and recharge batteries using the updated native charging/transfer behavior. Confirm no duplicate battery bar consumption, especially after interrupted laser firing.
+- With only the host modded, compare weapon heading, native shot effects/damage, warning mine position/beeps, and removal before firing on a vanilla client. No custom stream or RPC implementation has been added in this update.
+- Run without unrelated outdated mods when checking startup and gameplay. In-game tests remain required; metadata and IL checks alone do not establish runtime compatibility.

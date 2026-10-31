@@ -1,3 +1,4 @@
+using System;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -9,7 +10,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string PluginGuid = "artrointel.PocketCartTurret";
     public const string PluginName = "PocketCartTurret";
-    public const string PluginVersion = "0.1.1";
+    public const string PluginVersion = "0.1.2";
 
     internal static ManualLogSource ModLogger { get; private set; } = null!;
 
@@ -19,7 +20,19 @@ public sealed class Plugin : BaseUnityPlugin
     {
         ModLogger = Logger;
         _harmony = new Harmony(PluginGuid);
-        _harmony.PatchAll();
+        try
+        {
+            // Resolve all private field bindings before installing any hooks.
+            _ = VanillaWeapon.State;
+            _harmony.PatchAll();
+        }
+        catch (Exception exception)
+        {
+            _harmony.UnpatchSelf();
+            ModLogger.LogError($"{PluginName} initialization failed; patches removed: {exception}");
+            enabled = false;
+            return;
+        }
 
         ModLogger.LogInfo($"{PluginName} v{PluginVersion} loaded.");
 #if DEBUG

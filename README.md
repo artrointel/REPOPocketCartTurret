@@ -32,9 +32,11 @@ Spawner sources are isolated in `src/PocketCartTurret/Debug/`, guarded by `#if D
 
 - .NET 9 SDK, C# 12, `netstandard2.1`
 - BepInEx 5.4.21, HarmonyX 2.7.0
-- UnityEngine.Modules 2022.3.62
-- R.E.P.O.GameLibs.Steam 0.4.4-ngd.0
+- Installed R.E.P.O. 0.5.0 / Unity 6000.3.17 game assemblies
+- Fallback only: R.E.P.O.GameLibs.Steam 0.4.4-ngd.0 and UnityEngine.Modules 2022.3.62
 - Linkoid.Repo.Plugin.Build 0.2.2
+
+Builds use installed game, Photon, and Unity assemblies when the game is available. Publicizing changes only intermediate reference copies, never installed game files. The public game-reference NuGet package currently stops at 0.4.4 and remains an optional fallback (`-p:UseInstalledGameAssemblies=false`), not evidence of 0.5.0 compatibility.
 
 BepInEx is pinned to the version restored by the reference project. Local `.dotnet/` SDK and `.nuget/packages/` caches are ignored by Git. On a new PC, install a .NET 9 SDK compatible with `global.json`. VS Code tasks use `.dotnet/dotnet.exe`.
 
@@ -62,7 +64,7 @@ Add `-p:CopyFilesToPluginOutputDirectoryOnBuild=false` to build without deployin
 - `F5` → `PocketCartTurret: Launch and attach`: launch and attach the Mono debugger at `127.0.0.1:10000`.
 - `PocketCartTurret: Watch BepInEx log`: follow the development profile log.
 
-F5 requires the VS Code C# Dev Kit and Unity extensions. Close the game before rebuilding and launching. Successful loading writes `PocketCartTurret v0.1.1 loaded.` to the log.
+F5 requires the VS Code C# Dev Kit and Unity extensions. Close the game before rebuilding and launching. Successful loading writes `PocketCartTurret v0.1.2 loaded.` to the log.
 
 For another profile, copy `Directory.Repo.props.example` or `Directory.Repo.Gale.props.example` to `Directory.Repo.props` and adjust it. Update the launch script and log task paths as well. `Directory.Repo.props` is ignored by Git because it contains local paths.
 
@@ -72,7 +74,7 @@ For another profile, copy `Directory.Repo.props.example` or `Directory.Repo.Gale
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Pack-Thunderstore.ps1
 ```
 
-The output is `artifacts/PocketCartTurret-0.1.1.zip`. Packaging does not deploy to the game profile. The original artwork is `assets/PocketCartTurret.png`; the submission icon is the 256×256 PNG at `thunderstore/icon.png`. Versions must match in the csproj, `Plugin.cs`, and `thunderstore/manifest.json`.
+The output is `artifacts/PocketCartTurret-0.1.2.zip`. Packaging does not deploy to the game profile. The original artwork is `assets/PocketCartTurret.png`; the submission icon is the 256×256 PNG at `thunderstore/icon.png`. Versions must match in the csproj, `Plugin.cs`, and `thunderstore/manifest.json`.
 
 Add `-NoRestore` to package offline after restoring dependencies.
 
@@ -107,3 +109,7 @@ Even brief detection loss resets the tracking timer: reacquisition must complete
 Unmounting, battery depletion, directly grabbing the weapon, or disabling automation removes the warning immediately. Pending tracking renews the mine's lifetime; only mines no longer managed by a controller expire after five seconds. Warning mines cannot collide, be grabbed, be toggled, arm, explode, or enter purchase counts, owned-item counts, or saved state. Normal purchased mines retain their behavior.
 
 Routine diagnostics and the F8 probe were removed. Plugin loading/error logs and Debug-only stage equipment spawning remain. See [the code review](planning/code-review.md) for findings and outstanding manual checks.
+
+## R.E.P.O. 0.5.0 review
+
+See [the compatibility review](planning/compatibility-0.5.0.md) for the native API review, destroyed-equipment safeguards, deferred Debug spawn hook, verification results, and outstanding gameplay checks. The host-only native RPC/transform synchronization path, 70% detection range, two-second tracking delay, and arming-beep warning are preserved.

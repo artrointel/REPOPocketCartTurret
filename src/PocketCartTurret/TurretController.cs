@@ -41,7 +41,8 @@ internal sealed class TurretController : MonoBehaviour
     {
         get
         {
-            if (_failed || GameManager.instance == null || RunManager.instance == null)
+            if (_failed || GameManager.instance == null || RunManager.instance == null ||
+                _physical == null || _physical.dead || !_physical.isActiveAndEnabled)
             {
                 return false;
             }
@@ -50,11 +51,21 @@ internal sealed class TurretController : MonoBehaviour
             return TurretRules.CanAutomate(
                 SemiFunc.IsMasterClientOrSingleplayer(),
                 LevelGenerator.Instance != null && LevelGenerator.Instance.Generated && SemiFunc.RunIsLevel(),
-                cart != null && cart.isSmallCart,
+                IsUsablePocketCart(cart),
                 _impact.inCart && cart != null,
                 VanillaWeapon.BatteryBars(_battery) > 0 && VanillaWeapon.BatteryLife(_battery) > 0f,
                 _physical.playerGrabbing.Count > 0);
         }
+    }
+
+    private static bool IsUsablePocketCart(PhysGrabCart? cart)
+    {
+        if (cart == null || !cart.isSmallCart || !cart.isActiveAndEnabled)
+        {
+            return false;
+        }
+        PhysGrabObject body = cart.GetComponent<PhysGrabObject>();
+        return body != null && !body.dead && body.isActiveAndEnabled;
     }
 
     internal void BeforeWeaponUpdate()

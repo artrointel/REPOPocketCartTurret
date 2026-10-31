@@ -101,7 +101,7 @@ internal sealed class DebugStageSpawner : MonoBehaviour
     }
 }
 
-[HarmonyPatch(typeof(LevelGenerator), "GenerateDone")]
+[HarmonyPatch(typeof(LevelGenerator), "GenerateDoneApply")]
 internal static class DebugStageStartPatch
 {
     [HarmonyPostfix]
@@ -110,7 +110,7 @@ internal static class DebugStageStartPatch
         if (__instance.Generated && SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel() &&
             __instance.GetComponent<DebugStageSpawner>() == null)
         {
-            // The component is the per-generator once guard; a repeated GenerateDone
+            // The component is the per-generator once guard; a repeated GenerateDoneApply
             // or a newly joined player cannot spawn another set in the same stage.
             __instance.gameObject.AddComponent<DebugStageSpawner>();
         }

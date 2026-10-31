@@ -4,7 +4,7 @@ The host automatically aims and fires stock cannons and lasers mounted in pocket
 
 ## Activation requirements
 
-1. A normal mission must have finished generating.
+1. A normal mission must have finished generating. Both the weapon and pocket cart must remain alive, enabled, and active.
 2. Decisions run only on the host or in singleplayer. The game uses a fixed host.
 3. Native `PhysGrabObjectImpactDetector.inCart/currentCart` must identify a pocket cart.
 4. Both remaining battery charge and available battery bars must be positive.
@@ -33,7 +33,7 @@ Clients perform no authority decisions even if they have the mod installed. Only
 ## Development spawning and distribution
 
 - Debug builds spawn one pocket cart, cannon, and laser near the truck after normal mission generation.
-- Repeated completion events for the same `LevelGenerator` must not duplicate the equipment.
+- Hook `LevelGenerator.GenerateDoneApply`, the actual completion step in 0.5.0, rather than the earlier `GenerateDone` RPC. Repeated completion events for the same `LevelGenerator` must not duplicate the equipment.
 - In multiplayer the host spawns native room-owned items visible to vanilla clients.
 - Do not spawn test equipment in shops, lobbies, or on clients.
 - Exclude `Debug/` sources from non-Debug compilation and also guard them with `#if DEBUG`.

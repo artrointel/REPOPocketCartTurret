@@ -99,9 +99,14 @@ Check(!TurretRules.TryAimYaw(0, 0, 0, 0, 0, 5, out _), "Vertical barrel accepted
 Check(!TurretRules.TryAimYaw(0, 1, 2, 0, 0, 1, out _), "Unreachable inner pivot radius accepted.");
 Check(!TurretRules.TryAimYaw(0, 1, 0, 2, 0, 1, out _), "Point behind barrel origin accepted.");
 
+string gamePath = args.Length > 0 ? args[0] : @"C:\Program Files (x86)\Steam\steamapps\common\REPO\REPO_Data\Managed\Assembly-CSharp.dll";
+using var resolver = new DefaultAssemblyResolver();
+resolver.AddSearchDirectory(Path.GetDirectoryName(Path.GetFullPath(gamePath))!);
+var readerParameters = new ReaderParameters { AssemblyResolver = resolver };
+
 string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../"));
-using AssemblyDefinition debug = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Debug/netstandard2.1/PocketCartTurret.dll"));
-using AssemblyDefinition release = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Release/netstandard2.1/PocketCartTurret.dll"));
+using AssemblyDefinition debug = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Debug/netstandard2.1/PocketCartTurret.dll"), readerParameters);
+using AssemblyDefinition release = AssemblyDefinition.ReadAssembly(Path.Combine(root, "src/PocketCartTurret/bin/Release/netstandard2.1/PocketCartTurret.dll"), readerParameters);
 Check(debug.MainModule.Types.Any(t => t.Name == "DebugStageSpawner"), "Debug spawn code missing in Debug.");
 Check(debug.MainModule.Types.Any(t => t.Name == "DebugStageStartPatch"), "Debug stage patch missing in Debug.");
 Check(!release.MainModule.Types.Any(t => t.Name.StartsWith("DebugStage")), "Release contains debug spawn code.");
@@ -109,6 +114,26 @@ Check(!release.MainModule.GetTypeReferences().Any(t => t.Name == "DebugStageSpaw
 Check(!release.MainModule.Types.Any(t => t.Name == "WarningPrefabProbe"), "Release contains the Debug startup probe.");
 foreach (AssemblyDefinition mod in new[] { debug, release })
 {
+    Check(mod.Name.Version == new Version(0, 1, 2, 0), "Build version mismatch.");
+    foreach (MemberReference member in mod.MainModule.GetMemberReferences())
+    {
+        string scope = member.DeclaringType.Scope.Name;
+        if (scope is not ("Assembly-CSharp" or "PhotonUnityNetworking" or "PhotonRealtime" or "Photon3Unity3D") &&
+            !scope.StartsWith("UnityEngine"))
+            continue;
+        Check(member switch {
+            MethodReference method => method.Resolve() != null,
+            FieldReference field => field.Resolve() != null,
+            _ => true
+        }, $"Installed game/Unity API missing: {member.FullName}");
+    }
+    var awake = mod.MainModule.Types.Single(t => t.Name == "Plugin").Methods.Single(m => m.Name == "Awake");
+    Check(awake.Body.ExceptionHandlers.Any(h => h.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch) &&
+        awake.Body.Instructions.Any(i => i.Operand is MethodReference method && method.Name == "UnpatchSelf"),
+        "Initialization failures must remove partially installed hooks.");
+    var fireGate = mod.MainModule.Types.Single(t => t.Name == "WeaponShotGatePatch").Methods.Single(m => m.Name == "Prefix");
+    Check(fireGate.Body.ExceptionHandlers.Any(h => h.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch),
+        "Shot gate errors must not escape into the native state machine.");
     foreach (string removed in new[] { "WarningPrefabProbe", "WarningSoundPlaybackPatch", "WarningPrefabWarmupPatch" })
         Check(!mod.MainModule.Types.Any(t => t.Name == removed), $"Diagnostic code still present: {removed}");
     Check(!mod.MainModule.Types.SelectMany(t => t.Methods).Where(m => m.HasBody).SelectMany(m => m.Body.Instructions).Any(i =>
@@ -135,6 +160,14 @@ foreach (AssemblyDefinition mod in new[] { debug, release })
     Check(!mod.MainModule.Types.Any(t => t.Name == "WeaponPhysicsPatch"),
         "Independent torque must not replace or fight the native corrector.");
     TypeDefinition controller = mod.MainModule.Types.Single(t => t.Name == "TurretController");
+    foreach (string gate in new[] { "get_OwnsAim", "IsUsablePocketCart" })
+    {
+        var method = controller.Methods.Single(m => m.Name == gate);
+        Check(method.Body.Instructions.Any(i => i.Operand is FieldReference field && field.Name == "dead"),
+            $"Destroyed equipment guard missing: {gate}");
+        Check(method.Body.Instructions.Any(i => i.Operand is MethodReference call && call.Name == "get_isActiveAndEnabled"),
+            $"Disabled equipment guard missing: {gate}");
+    }
     Check(!controller.Methods.Where(m => m.HasBody).SelectMany(m => m.Body.Instructions).Any(i =>
         i.Operand is MethodReference method && method.Name == "AddTorque"),
         "Turret is applying torque outside the vanilla stabilizer.");
@@ -202,12 +235,18 @@ foreach (AssemblyDefinition mod in new[] { debug, release })
 
 // Verify the patch/field contract against the actual installed game, not just
 // the publicized compile references. No game assembly is executed or distributed.
-string gamePath = args.Length > 0 ? args[0] : @"C:\Program Files (x86)\Steam\steamapps\common\REPO\REPO_Data\Managed\Assembly-CSharp.dll";
-using AssemblyDefinition game = AssemblyDefinition.ReadAssembly(gamePath);
+
+using AssemblyDefinition game = AssemblyDefinition.ReadAssembly(gamePath, readerParameters);
 TypeDefinition GameType(string name) => game.MainModule.Types.Single(t => t.Name == name);
 foreach (string method in new[] { "Start", "Update", "FixedUpdate", "GrabLogic", "StateSet", "StateSetRPC" })
     Check(GameType("ItemCartCannonMain").Methods.Any(m => m.Name == method), $"Game weapon method missing: {method}");
-Check(GameType("LevelGenerator").Methods.Any(m => m.Name == "GenerateDone"), "Stage completion hook missing.");
+Check(GameType("LevelGenerator").Methods.Any(m => m.Name == "GenerateDoneApply"), "Deferred stage completion hook missing.");
+Check(GameType("LevelGenerator").Methods.Single(m => m.Name == "GenerateDoneApply").Body.Instructions.Any(i =>
+    i.Operand is FieldReference field && field.Name == "Generated"),
+    "Debug equipment must spawn after the native generated flag is set.");
+Check(debug.MainModule.Types.Single(t => t.Name == "DebugStageStartPatch").CustomAttributes.Any(a =>
+    a.AttributeType.Name == "HarmonyPatch" && a.ConstructorArguments.Any(v => Equals(v.Value, "GenerateDoneApply"))),
+    "Debug stage spawning still hooks the pre-completion RPC.");
 TypeDefinition mine = GameType("ItemMine");
 Check(mine.Fields.Any(f => f.Name == "soundArmingBeep" && f.FieldType.Name == "Sound"), "Mine Arming sound missing.");
 MethodDefinition mineStateRpc = mine.Methods.Single(m => m.Name == "StateSetRPC");
@@ -248,4 +287,24 @@ Check(GameType("ItemCartCannon").Methods.Single(m => m.Name == "ShootLogic").Bod
     i.Operand is float value && value == TurretRules.CannonRange), "Vanilla cannon range changed.");
 Check(GameType("ItemCartLaser").Methods.Single(m => m.Name == "StateShooting").Body.Instructions.Any(i =>
     i.Operand is float value && value == TurretRules.LaserRange), "Vanilla laser range changed.");
+foreach ((string type, string method, int count) in new[] {
+    ("ItemCartCannonMain", "Start", 0), ("ItemCartCannonMain", "Update", 0),
+    ("ItemCartCannonMain", "GrabLogic", 0), ("ItemCartCannonMain", "StateSet", 1),
+    ("ItemMine", "Start", 0), ("ItemMine", "StateSetRPC", 2), ("ItemMine", "StateSet", 1),
+    ("ItemMine", "DestroyMine", 0), ("ItemMine", "TriggeredRPC", 1), ("ItemMine", "StateArming", 0),
+    ("ItemMineExplosive", "OnTriggered", 0), ("PhysGrabObject", "GrabStartedRPC", 2),
+    ("ItemEquippable", "RPC_RequestEquip", 3), ("StatsManager", "ItemFetchName", 3),
+    ("ItemManager", "AddSpawnedItem", 1), ("LevelGenerator", "GenerateDoneApply", 0) })
+    Check(GameType(type).Methods.Count(m => m.Name == method && m.Parameters.Count == count) == 1,
+        $"Native patch signature changed: {type}.{method}");
+foreach ((string type, string method) in new[] { ("ItemCartCannon", "ShootLogic"), ("ItemCartLaser", "StateGoingBack") })
+    Check(GameType(type).Methods.Single(m => m.Name == method).Body.Instructions.Count(i =>
+        i.Operand is MethodReference call && call.Name == "RemoveFullBar") == 1,
+        $"Native battery consumption changed: {type}.{method}");
+foreach (string method in new[] { "StateActive", "StateBuildup", "StateShooting", "StateGoingBack" })
+    Check(GameType("ItemCartCannonMain").Methods.Single(m => m.Name == method).Body.Instructions.Any(i =>
+        i.Operand is MethodReference call && call.Name == "GrabLogic"),
+        $"Native upright stabilization missing from {method}.");
+Check(arming.Body.Instructions.Any(i => i.Operand is MethodReference method && method.Name == "StateSet"),
+    "Warning transition guard no longer covers the native arming path.");
 Console.WriteLine($"Passed {checks} checks: authority, energy/mount gates, range, nearest target, 360-degree yaw geometry, actual muzzle acquisition, native stabilization preservation, two-second warning, mine warning/cleanup/isolation, live game contract, Release exclusion.");

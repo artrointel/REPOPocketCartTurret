@@ -60,6 +60,14 @@ internal static class WeaponShotGatePatch
             return true;
         }
         TurretController controller = __instance.GetComponent<TurretController>();
-        return controller == null || controller.PrepareAutomaticShot();
+        try
+        {
+            return controller == null || controller.PrepareAutomaticShot();
+        }
+        catch (Exception exception)
+        {
+            controller?.DisableAutomation(exception);
+            return false;
+        }
     }
 }

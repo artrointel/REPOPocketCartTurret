@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- Update the build and compatibility checks for R.E.P.O. 0.5.0 (The Sunstone Update) and its Unity 6 assemblies.
+- Stop automation and clean up pending warnings when the weapon or pocket cart is destroyed or disabled, including pocket-cart pit destruction.
+- Remove partially installed hooks if initialization fails, and contain shot-gate exceptions while preserving native weapon behavior.
+- Update Debug-only stage equipment spawning to run after deferred level generation actually completes. Test spawning remains excluded from Release.
+- Preserve host-only installation, native firing and warning RPCs, normal battery consumption, 70% detection range, and the two-second continuous-tracking delay.
+
 ## 0.1.1
 
 - Clarify that the cart works as an unattended stationary turret as well as mobile fire support. No player needs to hold or push it.
